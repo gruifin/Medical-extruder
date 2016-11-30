@@ -24,6 +24,24 @@ int steps4; // global var for steps taken by motor 1
 //De code ziet er over het algemeen goed uit
 //Maar er word veel te veel herhaald. Alle stap-fucnties kunnen worden verwerkt tot een fucntie.
 
+//new function stepper-controlers
+void stepper(int motor, int direction, int steps)
+{
+    //preset the motor direction
+    if(direction)
+      digitalRead(motor, HIGH);
+    else
+      digitalRead(motor, HIGH);
+
+    //perform x out of 400 steps
+    for(int x = steps; x < 0; x--)
+    {
+      
+    }
+
+}
+
+
 void step_down1()// function that let's the motor1 take 1 step downwards
 {
   digitalWrite(dirPin1, LOW); //Changes the rotations direction
