@@ -1,3 +1,6 @@
+//Author: Ludo Teirlinck and Sebastian Smit
+
+//declaring variables
 int enablePin = 4;
 int resetPin = 10;
 
@@ -15,18 +18,94 @@ int stepPin2 = 5; //stepperpin for motor 1
 int stepPin3 = 7; //stepperpin for motor 1
 int stepPin4 = 9; //stepperpin for motor 1
 
-int steps1;  // global var for steps taken by motor 1
-int steps2; // global var for steps taken by motor 1
-int steps3; // global var for steps taken by motor 1
-int steps4; // global var for steps taken by motor 1
+int step [4][2];  //2d array for steps taken by the motors
+int *pstep;       //pointer to stepp array
+
+int volume [4][2];  //volume of gel compartiments and blend chamber
+int *pvolume ;      //pointer to vollume array
+
+int StepSize = 32;  //stepsize
+
+//initiatin system
+void setup()
+{
+  init_steppers();
+  mode(0,1,1,1);
+}
+
+//main loop system
+void loop()
+{
+
+for(i=0; i<4; i++)
+  stepper(i, <direction>, <stappen>, SetpSize);
+
+
+
+
+//Ludo rewrite notes: 4
+//waardes defineren buiten de <void loop>
+
+// int vloeistof1;
+// int vloeistof2;
+// int vloeistof3;
+// int vloeistof4;
+// int instel_percentage1;
+// int instel_percentage2;
+// int instel_percentage3;
+// int instel_percentage4;
+//
+// percentage_mengen(vloeistof1,vloeistof2,vloeistof3,vloeistof4);
+// instel_percentage(instel_percentage1,instel_percentage2,instel_percentage3,instel_percentage4,vloeistof1,vloeistof2,vloeistof3,vloeistof4);
+
+//Ludo rewrite notes: 5
+//Er is geen enkele aanwezigheid van een Serial-Debuig
+//Dit is vrij essentieel voor het testen/debuggen van de code
+
+}
+
+
+
+
 
 //Ludo rewrite notes: 1
 //De code ziet er over het algemeen goed uit
 //Maar er word veel te veel herhaald. Alle stap-fucnties kunnen worden verwerkt tot een fucntie.
 
+
+
 //new function stepper-controlers
-void stepper(int motor, int direction, int steps)
+void stepper(int Motor, int Direction, int Steps, int StepSize) //void stepper(motor: 1-4, Direction: 0-1, Steps: infinite, StepSize: 2,4,8,16,32)
 {
+    //local variables
+    int DirPin;
+    int StepPin;
+    int delay = 500; //microseconds delay between
+                     //to perform steps the delay has to be altered: 300ms = 1 step; 600ms = 1/2 step; 900ms = 1/4 step; 1200ms = 1/8; 1500ms = 1/16 step
+
+    //stepsize set
+    switch(StepSize)
+    {
+      case 1:   digitalWrite(mode0Pin, LOW); digitalWrite(mode1Pin, LOW); digitalWrite(mode2Pin, LOW);    // full step
+      case 2:   digitalWrite(mode0Pin, HIGH); digitalWrite(mode1Pin, LOW); digitalWrite(mode2Pin, LOW);   // 1/2  step
+      case 4:   digitalWrite(mode0Pin, LOW); digitalWrite(mode1Pin, HIGH); digitalWrite(mode2Pin, LOW);   // 1/4  step
+      case 8:   digitalWrite(mode0Pin, HIGH); digitalWrite(mode1Pin, HIGH); digitalWrite(mode2Pin, LOW);  // 1/8  step
+      case 16:  digitalWrite(mode0Pin, LOW); digitalWrite(mode1Pin, LOW); digitalWrite(mode2Pin, HIGH);   // 1/16 step
+      case 32:  digitalWrite(mode0Pin, HIGH); digitalWrite(mode1Pin, LOW); digitalWrite(mode2Pin, HIGH);  // 1/32 step
+      default:  digitalWrite(mode0Pin, LOW); digitalWrite(mode1Pin, LOW); digitalWrite(mode2Pin, LOW);    // full step
+                Serial.println("Error: wrong step size"); break;
+    }
+
+    //define pints to be used
+    switch(motor)
+    {
+        case 1: DirPin = 2; StepPin = 3; break;
+        case 2: DirPin = 4; StepPin = 5; break;
+        case 3: DirPin = 6; StepPin = 7; break;
+        case 4: DirPin = 8; StepPin = 9; break;
+        default: Serial.println("Error: motor does not exist"); break;
+    }
+
     //preset the motor direction
     if(direction)
       digitalRead(motor, HIGH);
@@ -34,130 +113,21 @@ void stepper(int motor, int direction, int steps)
       digitalRead(motor, HIGH);
 
     //perform x out of 400 steps
+    //<<make this better!!!
     for(int x = steps; x < 0; x--)
     {
-      
+      digitalWrite(StepPin, HIGH);
+      delayMicroseconds(delay);
+      digitalWrite(StepPin, LOW);
+      delayMicroseconds(delay);
     }
-
-}
-
-
-void step_down1()// function that let's the motor1 take 1 step downwards
-{
-  digitalWrite(dirPin1, LOW); //Changes the rotations direction
-  // Makes 400 pulses for making one full cycle rotation
-  for (int x = 0; x < 400; x++) {
-    digitalWrite(stepPin1, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin1, LOW);
-    delayMicroseconds(500);
-  }
-  steps1--;
-}
-
-void step_up1()// function that let's the motor1 take 1 step up
-{
-  digitalWrite(dirPin1, HIGH); //Changes the rotations direction
-  // Makes 400 pulses for making one full cycle rotation
-  for (int x = 0; x < 400; x++)
-  {
-    digitalWrite(stepPin1, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin1, LOW);
-    delayMicroseconds(500);
-  }
-  steps1++;
-
-}
-
-void step_down2()// function that let's the motor2 take 1 step downwards
-{
-  digitalWrite(dirPin2, LOW); //Changes the rotations direction
-  // Makes 400 pulses for making one full cycle rotation
-  for (int x = 0; x < 400; x++) {
-    digitalWrite(stepPin2, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin2, LOW);
-    delayMicroseconds(500);
-  }
-  steps2--;
-}
-
-void step_up2()// function that let's the motor2 take 1 step up
-{
-  digitalWrite(dirPin2, HIGH); //Changes the rotations direction
-  // Makes 400 pulses for making one full cycle rotation
-  for (int x = 0; x < 400; x++)
-  {
-    digitalWrite(stepPin2, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin2, LOW);
-    delayMicroseconds(500);
-  }
-  steps2++;
-
-}
-
-void step_down3()// function that let's the motor3 take 1 step downwards
-{
-  digitalWrite(dirPin3, LOW); //Changes the rotations direction
-  // Makes 400 pulses for making one full cycle rotation
-  for (int x = 0; x < 400; x++) {
-    digitalWrite(stepPin3, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin3, LOW);
-    delayMicroseconds(500);
-  }
-  steps3--;
-}
-
-void step_up31()// function that let's the motor3 take 1 step up
-{
-  digitalWrite(dirPin3, HIGH); //Changes the rotations direction
-  // Makes 400 pulses for making one full cycle rotation
-  for (int x = 0; x < 400; x++)
-  {
-    digitalWrite(stepPin3, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin3, LOW);
-    delayMicroseconds(500);
-  }
-  steps3++;
-
-}
-
-void step_down4()// function that let's the motor4 take 1 step downwards
-{
-  digitalWrite(dirPin4, LOW); //Changes the rotations direction
-  // Makes 400 pulses for making one full cycle rotation
-  for (int x = 0; x < 400; x++) {
-    digitalWrite(stepPin1, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin4, LOW);
-    delayMicroseconds(500);
-  }
-  steps4--;
-}
-
-void step_up4()// function that let's the motor4 take 1 step up
-{
-  digitalWrite(dirPin4, HIGH); //Changes the rotations direction
-  // Makes 400 pulses for making one full cycle rotation
-  for (int x = 0; x < 400; x++)
-  {
-    digitalWrite(stepPin4, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin4, LOW);
-    delayMicroseconds(500);
-  }
-  steps4++;
 
 }
 
 //Ludo rewrite notes: 2
 //De mengfucntie ziet er niet heel overzichtelijk uit
 //Het is netter om een tweedimensionaal array te gerbruiken voor deze gehel berekening!!!
-//
+// 
 // array 2 demensionaal
 // [0] mengkamer [*] [buffer]
 // [1] Extruder  [A] [buffer]
@@ -259,12 +229,7 @@ void mode(int enable, int mode0, int mode1, int mode2)
   digitalWrite(mode2Pin, mode2);
 }
 
-
-void setup() {
-
-//Ludo rewrite notes: 3
-//maak een apparte intiatie fucntie voor de pinnen van de stepper-controlers
-
+void init_steppers(){
   pinMode(enablePin, OUTPUT);
   pinMode(resetPin, OUTPUT);
   pinMode(mode0Pin, OUTPUT);
@@ -278,32 +243,4 @@ void setup() {
   pinMode(stepPin2, OUTPUT);
   pinMode(stepPin3, OUTPUT);
   pinMode(stepPin4, OUTPUT);
-
-
-
-mode(0,1,1,1);
-}
-
-void loop()
-{
-
-//Ludo rewrite notes: 4
-//waardes defineren buiten de <void loop>
-
-int vloeistof1;
-int vloeistof2;
-int vloeistof3;
-int vloeistof4;
-int instel_percentage1;
-int instel_percentage2;
-int instel_percentage3;
-int instel_percentage4;
-
-percentage_mengen(vloeistof1,vloeistof2,vloeistof3,vloeistof4);
-instel_percentage(instel_percentage1,instel_percentage2,instel_percentage3,instel_percentage4,vloeistof1,vloeistof2,vloeistof3,vloeistof4);
-
-//Ludo rewrite notes: 5
-//Er is geen enkele aanwezigheid van een Serial-Debuig
-//Dit is vrij essentieel voor het testen/debuggen van de code
-
 }
