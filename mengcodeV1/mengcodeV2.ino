@@ -1,4 +1,45 @@
 //Author: Ludo Teirlinck and Sebastian Smit
+//Code: This code will manage a gell extrusion system for a medical 3D printer
+//      The system uses the following values:
+//      Input:  UART  < for testing purposes the desired values can be introduced to the priter over UART
+//              ??    < Main input from the REP RAP DUET module <no communication protocol yet, because it needs to be very fast>
+//                      *<the REPRAP DUET seems to have  2-serial busses, not sure yet if we can use this bus>
+//      Output: UART  < the UART can also be used for live data output of the printerhead it steps1-vloeistof_oud1
+
+//NEW CODE FLOW DESIGN <1/16/17>
+//  Independet components in the code:  -UART-IN reader                     <<Reads UART line, and save values to different arrays
+//                                      -Calculation for the 4 extruders    <<Takes the values for the extrudes for a certain DeltaTime and calculates the extrusion
+//                                      -Control function for 4 extruders
+//                                      -Control function fot blender in mix-chamber
+//                                      -Debug out on the UART <Developer-tool>
+//                                      -Main output to all motors with Interupt?
+//
+//
+//
+//  ____  ____  ____  ____
+//   ][    ][    ][    ][
+//   ][    ][    ][    ][
+//   ][    ][    ][    ][
+//  _][_  _][_  _][_  _][_
+//  |  |  |  |  |  |  |  |
+//  |--|  |--|  |--|  |--|
+//  |  |  |  |  |  |  |  |    <4x extruders with lurelock connection
+//  |  |  |  |  |  |  |  |    <6cm filled with 3 ml of gel
+//  |  |  |  |  |  |  |  |
+//  |  |  |  |  |  |  |  |
+//   \/    \/    \/    \/
+//   <________  ________>
+//           |  |
+//         __|  |__
+//       //        \\
+//      ||   <-->   ||  <inside mix chamber mix-blade 0-320 RPM
+//      ||  <---->  ||  <mix chamber
+//      \\   <-->   //
+//       \\__    __//
+//           |  |       <extruder
+//
+
+
 
 //declaring variables
 int enablePin = 4;
@@ -18,13 +59,14 @@ int stepPin2 = 5; //stepperpin for motor 1
 int stepPin3 = 7; //stepperpin for motor 1
 int stepPin4 = 9; //stepperpin for motor 1
 
-int step [4][2];  //2d array for steps taken by the motors
-int *pstep;       //pointer to stepp array
+int step [4][2];    //2d array for steps taken by the motors
+int *pstep = step;  //pointer to stepp array
 
-int volume [4][2];  //volume of gel compartiments and blend chamber
-int *pvolume ;      //pointer to vollume array
+int volume [5][3];      //volume of gel compartiments and blend chamber
+int *pvolume = volume;  //pointer to vollume array
 
-int StepSize = 32;  //stepsize
+int StepSize = 32;            //stepsize
+int *pstepzize = StepSize;    //
 
 //initiatin system
 void setup()
@@ -36,12 +78,6 @@ void setup()
 //main loop system
 void loop()
 {
-
-for(i=0; i<4; i++)
-  stepper(i, <direction>, <stappen>, SetpSize);
-
-
-
 
 //Ludo rewrite notes: 4
 //waardes defineren buiten de <void loop>
@@ -63,15 +99,6 @@ for(i=0; i<4; i++)
 //Dit is vrij essentieel voor het testen/debuggen van de code
 
 }
-
-
-
-
-
-//Ludo rewrite notes: 1
-//De code ziet er over het algemeen goed uit
-//Maar er word veel te veel herhaald. Alle stap-fucnties kunnen worden verwerkt tot een fucntie.
-
 
 
 //new function stepper-controlers
@@ -124,18 +151,27 @@ void stepper(int Motor, int Direction, int Steps, int StepSize) //void stepper(m
 
 }
 
-//Ludo rewrite notes: 2
-//De mengfucntie ziet er niet heel overzichtelijk uit
-//Het is netter om een tweedimensionaal array te gerbruiken voor deze gehel berekening!!!
-// 
-// array 2 demensionaal
-// [0] mengkamer [*] [buffer]
-// [1] Extruder  [A] [buffer]
-// [2] Extruder  [B] [buffer]
-// [3] Extruder  [C] [buffer]
-// [4] Extruder  [D] [buffer]
-//
-//Verder lijkt het mij ook handig om wat simpelere benoemingen te gebruiken
+//PWN control for the blender motor
+blender(int rpm)
+{
+  //write PWN controller
+}
+
+//this function manages the fluid composition that will exit the printhead on time interval <time - delay>
+//optimizing by using 1-byte sized intergers
+void blend(int8_t v1, int8_t v2, int8_t v3, int8_t v4, int8_t flow, int8_t speed)
+{
+  volume_setp_ml = 0,01;  //6ml/600steps=100steps/ml
+  //control the blend motor
+  blender();
+  //controll all the stepper motors
+  for(i=0; i<4; i++)
+  {
+    steps =
+    stepper(i, 1, steps, *SetpSize);
+  }
+}
+
 
 int percentage_mengen(int vloeistof1,int vloeistof2,int vloeistof3,int vloeistof4)
 {
