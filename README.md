@@ -4,6 +4,7 @@ This project is based around an prototype print head based on 4 syringes that in
 
 The code manly focuses on receiving a data stream from the printer which the print-head is mounted on, and converting this data to signals for the linear extruders of the syringes.
 
+```
   ____  ____  ____  ____
    ][    ][    ][    ][
    ][    ][    ][    ][
@@ -25,3 +26,6 @@ The code manly focuses on receiving a data stream from the printer which the pri
       \\   <-->   //
        \\__    __//
            |  |       <extruder
+           [  ] 	    <nozle 0.4 mm
+
+```
